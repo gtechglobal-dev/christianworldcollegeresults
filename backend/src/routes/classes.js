@@ -6,7 +6,7 @@ const roleAuth = require('../middlewares/roleAuth')
 
 const router = Router()
 
-router.get('/', auth, classController.getClasses)
+router.get('/', classController.getClasses)
 router.get('/:classId/subjects', auth, classController.getClassSubjects)
 
 router.post('/', auth, roleAuth('EXAM_OFFICER'), [
@@ -26,6 +26,7 @@ router.post('/assign-teacher', auth, roleAuth('EXAM_OFFICER'), [
 
 router.get('/teachers/assignments', auth, roleAuth('EXAM_OFFICER'), classController.getFormTeachers)
 
+router.get('/my-assignment', auth, roleAuth('FORM_TEACHER'), classController.getMyAssignment)
 router.get('/sessions/all', auth, classController.getSessions)
 
 router.post('/sessions', auth, roleAuth('EXAM_OFFICER'), [

@@ -35,6 +35,7 @@ export const classAPI = {
   createSubject: (data) => api.post('/classes/subjects', data),
   assignTeacher: (data) => api.post('/classes/assign-teacher', data),
   getTeachers: () => api.get('/classes/teachers/assignments'),
+  getMyAssignment: () => api.get('/classes/my-assignment'),
   getSessions: () => api.get('/classes/sessions/all'),
   createSession: (data) => api.post('/classes/sessions', data),
   createTerm: (data) => api.post('/classes/terms', data)

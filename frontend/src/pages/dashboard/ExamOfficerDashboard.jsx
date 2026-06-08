@@ -9,8 +9,18 @@ export default function ExamOfficerDashboard() {
   const [students, setStudents] = useState([])
   const [sessions, setSessions] = useState([])
   const [subjects, setSubjects] = useState([])
-  const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [pageLoading, setPageLoading] = useState(false)
+  const [studentLoading, setStudentLoading] = useState(false)
+  const [bulkLoading, setBulkLoading] = useState(false)
+  const [classLoading, setClassLoading] = useState(false)
+  const [subjectLoading, setSubjectLoading] = useState(false)
+  const [resultLoading, setResultLoading] = useState(false)
+  const [sessionLoading, setSessionLoading] = useState(false)
+  const [termLoading, setTermLoading] = useState(false)
+  const [teacherLoading, setTeacherLoading] = useState(false)
+  const [positionLoading, setPositionLoading] = useState(false)
+  const [withholdLoading, setWithholdLoading] = useState(null)
 
   const [studentForm, setStudentForm] = useState({ regNo: '', firstName: '', lastName: '', classId: '', arm: 'A' })
   const [classForm, setClassForm] = useState({ name: '', level: 'PRIMARY' })
@@ -65,15 +75,18 @@ export default function ExamOfficerDashboard() {
 
   const handleCreateStudent = async (e) => {
     e.preventDefault()
+    setStudentLoading(true)
     try {
       await studentAPI.create(studentForm)
       setMessage('Student created')
       setStudentForm({ regNo: '', firstName: '', lastName: '', classId: '', arm: 'A' })
     } catch (err) { setMessage(err.response?.data?.message || 'Error') }
+    finally { setStudentLoading(false) }
   }
 
   const handleBulkUpload = async (e) => {
     e.preventDefault()
+    setBulkLoading(true)
     try {
       const lines = bulkStudents.trim().split('\n').filter(Boolean)
       const students = lines.map(line => {
@@ -84,79 +97,96 @@ export default function ExamOfficerDashboard() {
       setMessage(res.data.message)
       setBulkStudents('')
     } catch (err) { setMessage(err.response?.data?.message || 'Error') }
+    finally { setBulkLoading(false) }
   }
 
   const handleCreateClass = async (e) => {
     e.preventDefault()
+    setClassLoading(true)
     try {
       await classAPI.create(classForm)
       setMessage('Class created')
       setClassForm({ name: '', level: 'PRIMARY' })
       loadClasses()
     } catch (err) { setMessage(err.response?.data?.message || 'Error') }
+    finally { setClassLoading(false) }
   }
 
   const handleCreateSubject = async (e) => {
     e.preventDefault()
+    setSubjectLoading(true)
     try {
       await classAPI.createSubject(subjectForm)
       setMessage('Subject created')
       setSubjectForm({ name: '', classId: '' })
     } catch (err) { setMessage(err.response?.data?.message || 'Error') }
+    finally { setSubjectLoading(false) }
   }
 
   const handleCreateResult = async (e) => {
     e.preventDefault()
+    setResultLoading(true)
     try {
       await resultAPI.create(resultForm)
       setMessage('Result created')
       setResultForm({ studentId: '', classId: '', sessionId: '', termId: '', scores: [] })
     } catch (err) { setMessage(err.response?.data?.message || 'Error') }
+    finally { setResultLoading(false) }
   }
 
   const handleCreateSession = async (e) => {
     e.preventDefault()
+    setSessionLoading(true)
     try {
       await classAPI.createSession(sessionForm)
       setMessage('Session created')
       setSessionForm({ name: '', isCurrent: false })
       loadSessions()
     } catch (err) { setMessage(err.response?.data?.message || 'Error') }
+    finally { setSessionLoading(false) }
   }
 
   const handleCreateTerm = async (e) => {
     e.preventDefault()
+    setTermLoading(true)
     try {
       await classAPI.createTerm(termForm)
       setMessage('Term created')
       setTermForm({ name: '', sessionId: '', isCurrent: false })
       loadSessions()
     } catch (err) { setMessage(err.response?.data?.message || 'Error') }
+    finally { setTermLoading(false) }
   }
 
   const handleCreateTeacher = async (e) => {
     e.preventDefault()
+    setTeacherLoading(true)
     try {
       await authAPI.createTeacher(teacherForm)
       setMessage('Teacher created')
       setTeacherForm({ firstName: '', lastName: '', email: '', password: '', classIds: [] })
     } catch (err) { setMessage(err.response?.data?.message || 'Error') }
+    finally { setTeacherLoading(false) }
   }
 
   const handleUpdatePositions = async (e) => {
     e.preventDefault()
+    setPositionLoading(true)
     try {
       await resultAPI.updatePositions(positionsForm)
       setMessage('Positions updated')
     } catch (err) { setMessage(err.response?.data?.message || 'Error') }
+    finally { setPositionLoading(false) }
   }
 
   const handleWithhold = async (resultId, withheld) => {
+    setWithholdLoading(resultId)
     try {
       await resultAPI.toggleWithhold(resultId, { withheld })
       setMessage(withheld ? 'Result withheld' : 'Result released')
       loadWithholdResults()
     } catch (err) { setMessage(err.response?.data?.message || 'Error') }
+    finally { setWithholdLoading(null) }
   }
 
   const updateScore = (idx, field, value) => {
@@ -177,7 +207,7 @@ export default function ExamOfficerDashboard() {
   }
 
   const loadStudents = async (classId) => {
-    try { setLoading(true); const res = await studentAPI.getAll({ classId }); setStudents(res.data) } catch (err) { console.error(err) } finally { setLoading(false) }
+    try { setPageLoading(true); const res = await studentAPI.getAll({ classId }); setStudents(res.data) } catch (err) { console.error(err) } finally { setPageLoading(false) }
   }
 
   return (
@@ -229,7 +259,10 @@ export default function ExamOfficerDashboard() {
               <input type="text" placeholder="Arm (A, B, C...)" value={studentForm.arm}
                 onChange={(e) => setStudentForm({ ...studentForm, arm: e.target.value })}
                 className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm" />
-              <button type="submit" className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition text-sm">Add Student</button>
+              <button type="submit" disabled={studentLoading}
+                className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition disabled:opacity-50 text-sm flex items-center justify-center gap-2">
+                {studentLoading && <Spinner />} {studentLoading ? 'Adding...' : 'Add Student'}
+              </button>
             </form>
           </div>
           <div className="bg-white rounded-xl shadow-md p-5 sm:p-6">
@@ -248,7 +281,7 @@ export default function ExamOfficerDashboard() {
                   <span className="text-[10px] sm:text-xs bg-[#1B5E20] text-white px-2 py-1 rounded shrink-0">{s.class?.name} {s.arm}</span>
                 </div>
               ))}
-              {!loading && students.length === 0 && <p className="text-gray-400 text-xs sm:text-sm text-center py-4">No students found</p>}
+              {!pageLoading && students.length === 0 && <p className="text-gray-400 text-xs sm:text-sm text-center py-4">No students found</p>}
             </div>
           </div>
         </div>
@@ -267,7 +300,10 @@ export default function ExamOfficerDashboard() {
               className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-mono"
               placeholder="regNo, FirstName, LastName, Arm&#10;PHS001, John, Doe, A&#10;PHS002, Jane, Smith, B" />
             <p className="text-[10px] sm:text-xs text-gray-400">One student per line: regNo, FirstName, LastName, Arm</p>
-            <button type="submit" className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition text-sm">Upload Students</button>
+            <button type="submit" disabled={bulkLoading}
+              className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition disabled:opacity-50 text-sm flex items-center justify-center gap-2">
+              {bulkLoading && <Spinner />} {bulkLoading ? 'Uploading...' : 'Upload Students'}
+            </button>
           </form>
         </div>
       )}
@@ -287,7 +323,10 @@ export default function ExamOfficerDashboard() {
               <input type="text" placeholder="Class Name (e.g., Primary 1)" required value={classForm.name}
                 onChange={(e) => setClassForm({ ...classForm, name: e.target.value })}
                 className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm" />
-              <button type="submit" className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition text-sm">Add Class</button>
+              <button type="submit" disabled={classLoading}
+                className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition disabled:opacity-50 text-sm flex items-center justify-center gap-2">
+                {classLoading && <Spinner />} {classLoading ? 'Adding...' : 'Add Class'}
+              </button>
             </form>
           </div>
           <div className="bg-white rounded-xl shadow-md p-5 sm:p-6">
@@ -321,7 +360,10 @@ export default function ExamOfficerDashboard() {
               <input type="text" placeholder="Subject Name" required value={subjectForm.name}
                 onChange={(e) => setSubjectForm({ ...subjectForm, name: e.target.value })}
                 className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm" />
-              <button type="submit" className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition text-sm">Add Subject</button>
+              <button type="submit" disabled={subjectLoading}
+                className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition disabled:opacity-50 text-sm flex items-center justify-center gap-2">
+                {subjectLoading && <Spinner />} {subjectLoading ? 'Adding...' : 'Add Subject'}
+              </button>
             </form>
           </div>
           <div className="bg-white rounded-xl shadow-md p-5 sm:p-6">
@@ -391,8 +433,10 @@ export default function ExamOfficerDashboard() {
                 </div>
               ))}
             </div>
-            <button type="submit" disabled={resultForm.scores.length === 0}
-              className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition disabled:opacity-50 text-sm">Submit Result</button>
+            <button type="submit" disabled={resultForm.scores.length === 0 || resultLoading}
+              className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition disabled:opacity-50 text-sm flex items-center justify-center gap-2">
+              {resultLoading && <Spinner />} {resultLoading ? 'Submitting...' : 'Submit Result'}
+            </button>
           </form>
         </div>
       )}
@@ -410,7 +454,10 @@ export default function ExamOfficerDashboard() {
                   <input type="checkbox" checked={sessionForm.isCurrent} onChange={(e) => setSessionForm({ ...sessionForm, isCurrent: e.target.checked })} />
                   Set as current session
                 </label>
-                <button type="submit" className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition text-sm">Create Session</button>
+                <button type="submit" disabled={sessionLoading}
+                  className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition disabled:opacity-50 text-sm flex items-center justify-center gap-2">
+                  {sessionLoading && <Spinner />} {sessionLoading ? 'Creating...' : 'Create Session'}
+                </button>
               </form>
             </div>
             <div className="bg-white rounded-xl shadow-md p-5 sm:p-6">
@@ -429,7 +476,10 @@ export default function ExamOfficerDashboard() {
                   <input type="checkbox" checked={termForm.isCurrent} onChange={(e) => setTermForm({ ...termForm, isCurrent: e.target.checked })} />
                   Set as current term
                 </label>
-                <button type="submit" className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition text-sm">Create Term</button>
+                <button type="submit" disabled={termLoading}
+                  className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition disabled:opacity-50 text-sm flex items-center justify-center gap-2">
+                  {termLoading && <Spinner />} {termLoading ? 'Creating...' : 'Create Term'}
+                </button>
               </form>
             </div>
           </div>
@@ -479,7 +529,10 @@ export default function ExamOfficerDashboard() {
                 {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
               <p className="text-[10px] sm:text-xs text-gray-400">Hold Ctrl/Cmd to select multiple classes</p>
-              <button type="submit" className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition text-sm">Create Teacher</button>
+              <button type="submit" disabled={teacherLoading}
+                className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition disabled:opacity-50 text-sm flex items-center justify-center gap-2">
+                {teacherLoading && <Spinner />} {teacherLoading ? 'Creating...' : 'Create Teacher'}
+              </button>
             </form>
           </div>
           <div className="bg-white rounded-xl shadow-md p-5 sm:p-6">
@@ -532,9 +585,12 @@ export default function ExamOfficerDashboard() {
                       </span>
                     </td>
                     <td className="p-2 sm:p-3 whitespace-nowrap">
-                      <button onClick={() => handleWithhold(r.id, !r.withheld)}
-                        className={`text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded text-white font-medium transition ${r.withheld ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}>
-                        {r.withheld ? 'Release' : 'Withhold'}
+                      <button onClick={() => handleWithhold(r.id, !r.withheld)} disabled={withholdLoading === r.id}
+                        className={`text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded text-white font-medium transition disabled:opacity-50 flex items-center gap-1 ${
+                          withholdLoading === r.id ? 'bg-gray-400' : r.withheld ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
+                        }`}>
+                        {withholdLoading === r.id && <Spinner small />}
+                        {withholdLoading === r.id ? '...' : r.withheld ? 'Release' : 'Withhold'}
                       </button>
                     </td>
                   </tr>
@@ -570,11 +626,23 @@ export default function ExamOfficerDashboard() {
                 <option key={t.id} value={t.id}>{t.name}</option>
               ))}
             </select>
-            <button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2.5 rounded-lg font-semibold transition text-sm">Update Positions</button>
+            <button type="submit" disabled={positionLoading}
+              className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2.5 rounded-lg font-semibold transition disabled:opacity-50 text-sm flex items-center justify-center gap-2">
+              {positionLoading && <Spinner />} {positionLoading ? 'Updating...' : 'Update Positions'}
+            </button>
           </form>
         </div>
       )}
     </div>
+  )
+}
+
+function Spinner({ small }) {
+  return (
+    <svg className={`animate-spin ${small ? 'h-3 w-3' : 'h-4 w-4'}`} viewBox="0 0 24 24" fill="none">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+    </svg>
   )
 }
 

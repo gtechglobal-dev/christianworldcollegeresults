@@ -10,14 +10,19 @@ export default function FormTeacherDashboard() {
   const [sessions, setSessions] = useState([])
   const [activeTab, setActiveTab] = useState('students')
   const [message, setMessage] = useState('')
+  const [pageLoading, setPageLoading] = useState(true)
 
   const [studentForm, setStudentForm] = useState({ regNo: '', firstName: '', lastName: '', arm: 'A' })
+  const [studentLoading, setStudentLoading] = useState(false)
   const [subjectForm, setSubjectForm] = useState({ name: '' })
+  const [subjectLoading, setSubjectLoading] = useState(false)
   const [selectedSession, setSelectedSession] = useState('')
   const [selectedTerm, setSelectedTerm] = useState('')
   const [results, setResults] = useState([])
   const [commentForm, setCommentForm] = useState({ resultId: '', comment: '' })
+  const [commentLoading, setCommentLoading] = useState(false)
   const [scoreForms, setScoreForms] = useState({})
+  const [submittingResult, setSubmittingResult] = useState(null)
 
   useEffect(() => {
     loadTeacherData()
@@ -26,16 +31,21 @@ export default function FormTeacherDashboard() {
 
   const loadTeacherData = async () => {
     try {
-      const res = await classAPI.getTeachers()
-      const my = res.data.find(a => a.userId === user.id)
-      if (my) {
-        setMyClass(my.class)
-        const stdRes = await studentAPI.getByClass(my.class.id)
+      const res = await classAPI.getMyAssignment()
+      if (res.data.class) {
+        setMyClass(res.data.class)
+        const [stdRes, subRes] = await Promise.all([
+          studentAPI.getByClass(res.data.class.id),
+          classAPI.getSubjects(res.data.class.id)
+        ])
         setStudents(stdRes.data)
-        const subRes = await classAPI.getSubjects(my.class.id)
         setSubjects(subRes.data)
       }
-    } catch (err) { console.error(err) }
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setPageLoading(false)
+    }
   }
 
   const loadSessions = async () => {
@@ -60,6 +70,7 @@ export default function FormTeacherDashboard() {
   const handleAddStudent = async (e) => {
     e.preventDefault()
     if (!myClass) return
+    setStudentLoading(true)
     try {
       await studentAPI.create({ ...studentForm, classId: myClass.id })
       setMessage(`Student ${studentForm.firstName} ${studentForm.lastName} added`)
@@ -67,11 +78,13 @@ export default function FormTeacherDashboard() {
       const res = await studentAPI.getByClass(myClass.id)
       setStudents(res.data)
     } catch (err) { setMessage(err.response?.data?.message || 'Error adding student') }
+    finally { setStudentLoading(false) }
   }
 
   const handleAddSubject = async (e) => {
     e.preventDefault()
     if (!myClass) return
+    setSubjectLoading(true)
     try {
       await classAPI.createSubject({ name: subjectForm.name, classId: myClass.id })
       setMessage(`Subject "${subjectForm.name}" added`)
@@ -79,19 +92,21 @@ export default function FormTeacherDashboard() {
       const res = await classAPI.getSubjects(myClass.id)
       setSubjects(res.data)
     } catch (err) { setMessage(err.response?.data?.message || 'Error adding subject') }
+    finally { setSubjectLoading(false) }
   }
 
   const handleSubmitResult = async (studentId) => {
     if (!myClass || !selectedSession || !selectedTerm) return
     const scores = scoreForms[studentId]
     if (!scores || scores.length === 0) return
-
+    setSubmittingResult(studentId)
     try {
       await resultAPI.create({ studentId, classId: myClass.id, sessionId: selectedSession, termId: selectedTerm, scores })
       setMessage('Result submitted')
       setScoreForms(prev => ({ ...prev, [studentId]: undefined }))
       loadResults()
     } catch (err) { setMessage(err.response?.data?.message || 'Error submitting result') }
+    finally { setSubmittingResult(null) }
   }
 
   const initScoreForm = (studentId) => {
@@ -109,12 +124,14 @@ export default function FormTeacherDashboard() {
 
   const handleSubmitComment = async (e) => {
     e.preventDefault()
+    setCommentLoading(true)
     try {
       await resultAPI.addComment(commentForm.resultId, { teacherComment: commentForm.comment })
       setMessage('Comment added')
       setCommentForm({ resultId: '', comment: '' })
       loadResults()
     } catch (err) { setMessage(err.response?.data?.message || 'Error') }
+    finally { setCommentLoading(false) }
   }
 
   const existingResultStudentIds = new Set(results.map(r => r.studentId))
@@ -169,7 +186,10 @@ export default function FormTeacherDashboard() {
               <input type="text" placeholder="Arm (A, B...)" value={studentForm.arm}
                 onChange={(e) => setStudentForm({ ...studentForm, arm: e.target.value })}
                 className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm" />
-              <button type="submit" className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition text-sm">Add Student</button>
+              <button type="submit" disabled={studentLoading}
+                className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition disabled:opacity-50 text-sm flex items-center justify-center gap-2">
+                {studentLoading && <Spinner />} {studentLoading ? 'Adding...' : 'Add Student'}
+              </button>
             </form>
           </div>
           <div className="bg-white rounded-xl shadow-md p-5 sm:p-6">
@@ -198,7 +218,10 @@ export default function FormTeacherDashboard() {
               <input type="text" placeholder="Subject Name" required value={subjectForm.name}
                 onChange={(e) => setSubjectForm({ ...subjectForm, name: e.target.value })}
                 className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm" />
-              <button type="submit" className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition text-sm">Add Subject</button>
+              <button type="submit" disabled={subjectLoading}
+                className="w-full bg-[#1B5E20] text-white py-2.5 rounded-lg font-semibold hover:bg-[#2E7D32] transition disabled:opacity-50 text-sm flex items-center justify-center gap-2">
+                {subjectLoading && <Spinner />} {subjectLoading ? 'Adding...' : 'Add Subject'}
+              </button>
             </form>
           </div>
           <div className="bg-white rounded-xl shadow-md p-5 sm:p-6">
@@ -249,8 +272,10 @@ export default function FormTeacherDashboard() {
                   <button onClick={() => initScoreForm(student.id)}
                     className="text-[10px] sm:text-xs bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition">Enter Scores</button>
                 ) : (
-                  <button onClick={() => handleSubmitResult(student.id)}
-                    className="text-[10px] sm:text-xs bg-[#1B5E20] text-white px-3 py-1 rounded hover:bg-[#2E7D32] transition">Submit</button>
+                  <button onClick={() => handleSubmitResult(student.id)} disabled={submittingResult === student.id}
+                    className="text-[10px] sm:text-xs bg-[#1B5E20] text-white px-3 py-1 rounded hover:bg-[#2E7D32] transition disabled:opacity-50 flex items-center gap-1">
+                    {submittingResult === student.id && <Spinner small />} {submittingResult === student.id ? 'Saving...' : 'Submit'}
+                  </button>
                 )}
               </div>
               {scoreForms[student.id] && (
@@ -359,7 +384,10 @@ export default function FormTeacherDashboard() {
                 className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm"
                 placeholder="Write your comment about the student's performance..." />
               <div className="flex gap-2 mt-2">
-                <button type="submit" className="bg-[#1B5E20] text-white px-4 sm:px-6 py-2 rounded-lg font-medium hover:bg-[#2E7D32] transition text-sm">Submit</button>
+                <button type="submit" disabled={commentLoading}
+                  className="bg-[#1B5E20] text-white px-4 sm:px-6 py-2 rounded-lg font-medium hover:bg-[#2E7D32] transition disabled:opacity-50 text-sm flex items-center gap-2">
+                  {commentLoading && <Spinner />} {commentLoading ? 'Saving...' : 'Submit'}
+                </button>
                 <button type="button" onClick={() => setCommentForm({ resultId: '', comment: '' })}
                   className="bg-gray-200 text-gray-700 px-4 sm:px-6 py-2 rounded-lg font-medium hover:bg-gray-300 transition text-sm">Cancel</button>
               </div>
@@ -368,5 +396,14 @@ export default function FormTeacherDashboard() {
         </div>
       )}
     </div>
+  )
+}
+
+function Spinner({ small }) {
+  return (
+    <svg className={`animate-spin ${small ? 'h-3 w-3' : 'h-4 w-4'}`} viewBox="0 0 24 24" fill="none">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+    </svg>
   )
 }

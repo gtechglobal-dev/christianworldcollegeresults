@@ -75,6 +75,19 @@ exports.getFormTeachers = async (req, res) => {
   }
 }
 
+exports.getMyAssignment = async (req, res) => {
+  try {
+    const assignment = await prisma.classTeacher.findFirst({
+      where: { userId: req.user.id },
+      include: { class: true }
+    })
+    if (!assignment) return res.status(404).json({ message: 'No class assignment found' })
+    res.json(assignment)
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message })
+  }
+}
+
 exports.getSessions = async (req, res) => {
   try {
     const sessions = await prisma.academicSession.findMany({
