@@ -36,8 +36,8 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <Link to="/" className="flex items-center space-x-3 shrink-0" onClick={() => setMenuOpen(false)}>
-            <img src="/school logo.png" alt="Phronesis" className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover" />
-            <span className="font-bold text-sm sm:text-lg truncate max-w-[180px] sm:max-w-none">Phronesis Int'l School</span>
+            <img src="/school logo.png" alt="Christian-World College Koko" className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover" />
+            <span className="font-bold text-sm sm:text-lg truncate max-w-[180px] sm:max-w-none">Christian-World College Koko</span>
           </Link>
 
           <button

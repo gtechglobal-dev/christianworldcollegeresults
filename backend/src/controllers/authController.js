@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const prisma = require('../utils/prisma')
 
 const ADMIN_USERNAME = 'Admin'
-const ADMIN_PASSWORD = 'Phronesis2026'
+const ADMIN_PASSWORD = 'ChristianWorld2026'
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -65,7 +65,7 @@ exports.login = async (req, res) => {
       if (!admin) {
         const hashed = await bcrypt.hash(ADMIN_PASSWORD, 12)
         admin = await prisma.user.create({
-          data: { email: 'admin@phronesis.com', password: hashed, firstName: 'Exam', lastName: 'Officer', role: 'EXAM_OFFICER' }
+          data: { email: 'admin@christianworldcollege.com', password: hashed, firstName: 'Exam', lastName: 'Officer', role: 'EXAM_OFFICER' }
         })
       }
       const token = generateToken(admin)

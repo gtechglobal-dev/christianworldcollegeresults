@@ -13,7 +13,7 @@ app.use(cors())
 app.use(express.json())
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Phronesis Int\'l School Result Checker API' })
+  res.json({ status: 'ok', message: 'Christian-World College Koko Result Checker API' })
 })
 
 app.use('/api/auth', authRoutes)

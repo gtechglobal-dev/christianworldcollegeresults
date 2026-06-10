@@ -9,14 +9,14 @@ export default function Landing() {
             <div className="text-center md:text-left">
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
                 Welcome to{' '}
-                <span className="text-yellow-400">Phronesis</span>{' '}
-                Int'l School
+                <span className="text-yellow-400">Christian-World</span>{' '}
+                College Koko
               </h1>
               <p className="mt-3 text-xs sm:text-sm text-yellow-300 font-medium">
-                30A & 30B NTA Road, Opp. Govt. Girls School, R/Okuta by 1 Okoa Str., Beside St. France Cath. Church, Port-Harcourt
+                Mile 1 Koko Beach, Off Akwarajor school Road, Warri North LGA. Delta State
               </p>
               <p className="mt-2 text-xs sm:text-sm text-yellow-200">
-                &#9742; 0818-175-9399, 0813-676-7214, 0803-875-1506
+                &#9742; 08034802717, 08076499600
               </p>
               <p className="mt-4 sm:mt-6 text-base sm:text-lg text-gray-200 leading-relaxed">
                 A centre for academic excellence, nurturing young minds from Montessori through Secondary
@@ -41,7 +41,7 @@ export default function Landing() {
             <div className="hidden md:flex justify-center">
               <img
                 src="/school logo.png"
-                alt="Phronesis Int'l School"
+                alt="Christian-World College Koko"
                 className="w-48 h-48 lg:w-64 lg:h-64 object-contain rounded-full shadow-2xl bg-white/10 p-4"
               />
             </div>

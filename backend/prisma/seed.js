@@ -9,10 +9,10 @@ async function main() {
   const examOfficerPassword = await bcrypt.hash('admin123', 12)
 
   await prisma.user.upsert({
-    where: { email: 'exam.officer@phronesis.com' },
+    where: { email: 'exam.officer@christianworldcollege.com' },
     update: {},
     create: {
-      email: 'exam.officer@phronesis.com',
+      email: 'exam.officer@christianworldcollege.com',
       password: examOfficerPassword,
       firstName: 'Exam',
       lastName: 'Officer',
@@ -82,7 +82,7 @@ async function main() {
   console.log('✓ Created terms')
 
   console.log('\n✅ Seed completed successfully!')
-  console.log('🔑 Admin login: Admin / Phronesis2026 (hardcoded)')
+  console.log('🔑 Admin login: Admin / ChristianWorld2026 (hardcoded)')
 }
 
 main()

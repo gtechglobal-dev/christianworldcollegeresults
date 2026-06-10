@@ -53,7 +53,7 @@ export default function Signup() {
     <div className="min-h-[70vh] sm:min-h-[80vh] flex items-center justify-center px-4 py-6 sm:py-8">
       <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-lg">
         <div className="text-center mb-6 sm:mb-8">
-          <img src="/school logo.png" alt="Phronesis" className="h-14 w-14 sm:h-16 sm:w-16 mx-auto rounded-full" />
+          <img src="/school logo.png" alt="Christian-World College Koko" className="h-14 w-14 sm:h-16 sm:w-16 mx-auto rounded-full" />
           <h2 className="text-xl sm:text-2xl font-bold text-[#1B5E20] mt-3 sm:mt-4">Parent/Guardian Registration</h2>
           <p className="text-gray-500 text-xs sm:text-sm">Link your ward(s) to access their results</p>
         </div>
