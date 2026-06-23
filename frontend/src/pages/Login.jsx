@@ -28,7 +28,7 @@ export default function Login() {
     <div className="min-h-[70vh] sm:min-h-[80vh] flex items-center justify-center px-4 py-6 sm:py-10">
       <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-md">
         <div className="text-center mb-6 sm:mb-8">
-          <img src="/kingdom life logo.png" alt="Christian-World College Koko" className="h-14 w-14 sm:h-16 sm:w-16 mx-auto rounded-full" />
+          <img src="/christian-world logo.png" alt="Christian-World College Koko" className="h-14 w-14 sm:h-16 sm:w-16 mx-auto rounded-full" />
           <h2 className="text-xl sm:text-2xl font-bold text-[#1B5E20] mt-3 sm:mt-4">Welcome Back</h2>
           <p className="text-gray-500 text-xs sm:text-sm">Sign in to your account</p>
         </div>

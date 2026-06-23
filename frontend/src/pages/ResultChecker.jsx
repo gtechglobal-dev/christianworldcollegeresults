@@ -39,7 +39,7 @@ export default function ResultChecker() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12">
       <div className="text-center mb-6 sm:mb-10">
-        <img src="/kingdom life logo.png" alt="Christian-World College Koko" className="h-16 w-16 sm:h-20 sm:w-20 mx-auto rounded-full mb-3 sm:mb-4" />
+        <img src="/christian-world logo.png" alt="Christian-World College Koko" className="h-16 w-16 sm:h-20 sm:w-20 mx-auto rounded-full mb-3 sm:mb-4" />
         <h1 className="text-2xl sm:text-3xl font-bold text-[#1B5E20]">Check Result</h1>
         <p className="text-gray-500 text-sm sm:text-base mt-1 sm:mt-2">Christian-World College Koko - Result Portal</p>
       </div>

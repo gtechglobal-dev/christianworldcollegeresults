@@ -40,7 +40,7 @@ export default function Landing() {
             </div>
             <div className="hidden md:flex justify-center">
               <img
-                src="/kingdom life logo.png"
+                src="/christian-world logo.png"
                 alt="Christian-World College Koko"
                 className="w-48 h-48 lg:w-64 lg:h-64 object-contain rounded-full shadow-2xl bg-white/10 p-4"
               />
